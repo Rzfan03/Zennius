@@ -1,0 +1,159 @@
+---
+import Navbar from "../components/Navbar.astro";
+import { API_KEY } from 'astro:env/server';
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width" />
+        <link rel="icon" type="image/svg+xml" href="/public/favicon.svg" />
+        <meta name="generator" content={Astro.generator} />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.css"
+        />
+        <title>Zennius - AI</title>
+    </head>
+    <body class="bg-gray-950">
+        <Navbar />
+        <div
+            class="h-screen text-white flex flex-col justify-center items-center text-center"
+        >
+            <div  id="welcome-1" class="mb-12 mt-12 max-w-2xl max-md:max-w-fit hidden max-md:max-w-1xl whitespace-normal leading-relaxed p-2 rounded-lg mx-2 text-sm break-words border-2 border-gray-800">
+                     <p id="output" class="text-white">Mencari Jawaban Terbaik!</p>
+                     
+                 </div>
+            <div id="welcome-2" class="text-white mb-6">
+                <h1 class="text-4xl max-md:text-3xl text-gray-400">
+                    Hi, aku Zennius!
+                </h1>
+                <p id="typewriter" class="text-md mt-2"></p>
+            </div>
+            
+            
+            <div class="sticky bottom-5 z-50">
+             <div id="input-box" class="flex items-cente gap-4">
+				<button class="text-white cursor-pointer text-center border-2 border-gray-900 text-sm shadow-sm shadow-gray-700 bg-gray-950 hover:scale-105 transition-all outline-0 p-3 rounded-lg"><i class="ri-attachment-line"></i></button>
+				<input id="user-input"  type="text" placeholder="  Tanyakan apa saja!" autocomplete="off" class="text-white border-2 bg-gray-950 border-gray-900 text-sm shadow-sm shadow-gray-700 hover:scale-102 transition-all outline-0 w-154 h-12 rounded-lg max-md:w-80 p-3">
+			</div>
+			<div id="recommend-prompt" class="grid hidden grid-cols-3 max-md:hidden gap-2 text-xs mt-5">
+				<div class="hover:scale-90 transition-all py-2 px-2 border-2 border-gray-800 shadow-sm shadow-gray-700 bg-gray-950 text-gray-200 cursor-pointer rounded-lg text-center">
+					<h1>Buat kan saya web</h1>
+				</div>
+				<div class="hover:scale-90 transition-all py-2 px-2 border-2 border-gray-800 shadow-sm shadow-gray-700 bg-gray-950 text-gray-200 cursor-pointer rounded-lg text-center">
+					<h1>Cek cuara hari ini</h1>
+				</div>
+				<div class="hover:scale-90 transition-all py-2 px-2 border-2 border-gray-800 shadow-sm shadow-gray-700 bg-gray-950 text-gray-200 cursor-pointer rounded-lg text-center">
+					<h1>Buatkan saya sebuah aplikasi</h1>
+				</div>
+			</div>
+        </div>
+        </div>
+    
+    </body>
+</html>
+
+<script>
+const apiKey ='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'
+
+
+
+
+    const phrases = [
+        "ada yang bisa aku bantu?",
+        "kamu mau tanya apa?",
+        "Jadi jenius dengan Zennius!",
+        "aku siap bantu kamu!",
+        "lagi butuh apa hari ini?",
+        "masih dalam tahap pengembangan jadi maaf jika banyak bug"
+    ];
+
+    const el = document.getElementById("typewriter");
+
+    let text = "";
+    let i = 0;
+    let deleting = false;
+
+    function loop() {
+        if (deleting) {
+            el.textContent = text.substring(0, i--);
+            if (i < 0) {
+                deleting = false;
+                text = phrases[Math.floor(Math.random() * phrases.length)];
+            }
+        } else {
+            el.textContent = text.substring(0, i++);
+            if (i > text.length) {
+                deleting = true;
+                setTimeout(loop, 1000);
+                return;
+            }
+        }
+
+        setTimeout(loop, deleting ? 40 : 60);
+    }
+
+    text = phrases[Math.floor(Math.random() * phrases.length)];
+    loop();
+    
+    
+    
+    const userInput = document.getElementById("user-input");
+    const output = document.getElementById("output");
+    let userValue = "";
+    
+    async function getInputValue() {
+      const welcome1 = document.getElementById("welcome-1")?.classList.remove('hidden');
+      const welcome2 = document.getElementById("welcome-2")?.classList.add('hidden');
+      const value = userInput.value.trim();
+        if (!value) {
+            alert('Input tidak boleh kosong');
+            return;
+        }
+        
+        if(value === 'siapa penciptamu?'){
+          alert('the one and only mas rizfan 😋');
+        }
+    
+        userValue = value;
+        userInput.value = "";
+    
+        output.textContent = `Mencari Jawaban Terbaik!`;
+    
+        try {
+            const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${apiKey}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    model: "x-ai/grok-4.1-fast:free",
+                    messages: [{ role: "user", content: userValue }],
+                    reasoning: { enabled: true }
+                })
+            });
+    
+            const result = await response.json();
+            const aiAnswer = result.choices[0].message.content;
+    
+            output.textContent = aiAnswer;
+            console.log("Jawaban AI:", aiAnswer);
+    
+        } catch (err) {
+            console.error("Error API:", err);
+            output.textContent = "Error mungkin API ga di pasang atau Limit ";
+        }
+    }
+
+    userInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {  
+            getInputValue();
+        }
+    });
+    </script>
+    
+  
+</script>

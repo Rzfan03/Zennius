@@ -1,0 +1,27 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+
+*{
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.online-indicator{
+    animation: ping 2.5s ease infinite;
+     animation-iteration-count: infinite;
+}
+
+
+ @keyframes ping {
+	 0% {
+		 background: #fff;
+		 border: 0px solid #fff;
+	}
+	 50% {
+		 background: #fff;
+		 border: 100px solid #222;
+	}
+	 100% {
+		 background: #fff;
+		 border: 0px solid #222;
+	}
+}
